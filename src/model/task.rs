@@ -33,7 +33,7 @@ impl Task {
         }
     }
     pub fn get_global_id(&self) -> String {
-        format!("{}-{}", self.user_id, self.task_id)
+        format!("{}_{}", self.user_id, self.task_id)
     }
     pub fn can_transition_to(&self, state: &TaskState) -> bool {
         self.state !=*state
