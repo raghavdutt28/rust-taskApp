@@ -32,7 +32,7 @@ struct SubmitTaskRequest {
 
 #[derive(Debug, Display)]
 pub enum TaskError {
-    TaskNotFoumd,
+    TaskNotFound,
     TaskUpdateFailure,
     TaskCreationFailure,
     BadTaskRequest
@@ -47,7 +47,7 @@ impl ResponseError for TaskError {
     }
     fn status_code(&self) -> StatusCode {
         match self {
-            TaskError::TaskNotFoumd => StatusCode::NOT_FOUND,
+            TaskError::TaskNotFound => StatusCode::NOT_FOUND,
             TaskError::TaskUpdateFailure => StatusCode::FAILED_DEPENDENCY,
             TaskError::TaskCreationFailure => StatusCode::INTERNAL_SERVER_ERROR,
             TaskError::BadTaskRequest => StatusCode::BAD_REQUEST
@@ -65,7 +65,7 @@ pub async fn get_task(
 
     match task {
         Some(task) => Ok(Json(task)),
-        None => Err(TaskError::TaskNotFoumd)
+        None => Err(TaskError::TaskNotFound)
     }
 }
 
@@ -77,7 +77,7 @@ pub async fn state_transition(
 ) -> Result<Json<TaskIdentifier>, TaskError> {
     let mut task = match ddb_repo.get_task(task_global_id).await {
         Some(task) => task,
-        None => return Err(TaskError::TaskNotFoumd)
+        None => return Err(TaskError::TaskNotFound)
     };
 
     match task.can_transition_to(&new_state) {
